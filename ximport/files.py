@@ -4,6 +4,8 @@ import pandas as pd
 import numpy as np
 import attr
 
+from ximport.log import get_logger
+log = get_logger(__name__)
 
 measurer = np.vectorize(len)
 
@@ -25,6 +27,7 @@ class RowData:
                 self.lengths[field] = max_length
         else:
             self.lengths[field] = self.lengths.get(field, None)
+        
 
     def update_type(self, field, dtype):
         levels = {
@@ -61,13 +64,15 @@ class RowData:
 class ImportFile:
     filename = attr.ib()
     chunksize = attr.ib()
+    bcp = attr.ib()
     rowcount = attr.ib(default=0)
 
     @classmethod
-    def from_args(cls, args):
-        return cls(filename=args.filename, chunksize=args.chunksize)
+    def from_args(cls, args, bcp):
+        return cls(filename=args.filename, chunksize=args.chunksize, bcp = bcp)
 
-    def analyze(self):
+    def process(self):
+        log.info(f"Processing to {self.bcp.infile}")        
         self.rowdata = RowData()
         for chunk in pd.read_csv(
             self.filename,
@@ -75,11 +80,16 @@ class ImportFile:
         ):
             self.rowcount += len(chunk)
             self._analyze(chunk)
+            self._write(chunk)
 
     def _analyze(self, chunk):
         for column in chunk.columns:
             self.rowdata.update(column, chunk[column])
-
+    
+    def _write(self, chunk):
+        chunk.to_csv(self.bcp.infile, index = False, mode = "a", quoting = csv.QUOTE_NONE, header = False,
+                     sep = chr(30))
+    
 
 if __name__ == "__main__":
     pass
