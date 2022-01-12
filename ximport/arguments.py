@@ -48,6 +48,9 @@ def get_args():
     parser.add_argument(
         "--reset", action="store_true", help="Do not load previous arguments"
     )
+    parser.add_argument(
+        "--chunksize", default=1000, help="Number of CSV lines to process in chunks"
+    )
     args = load_args(parser.parse_args())
     save_args(args)
     return args
