@@ -4,6 +4,10 @@ from ximport.files import ImportFile
 from ximport.arguments import get_args
 from ximport.db import MSSQL, BCP
 from ximport.log import get_logger
+from dotenv import load_dotenv
+from inspect import getsourcefile
+
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(getsourcefile(lambda:0)), ".env"))
 
 log = get_logger(__name__)
 

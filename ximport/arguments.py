@@ -1,9 +1,6 @@
 import json
 import os
 import argparse
-from dotenv import load_dotenv
-
-load_dotenv("~/.ximport")
 
 def get_last_arg(argument_name):
     try:
